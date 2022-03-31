@@ -1,4 +1,6 @@
 # pdf_parser
+This script fetches data from unpaywall, filters and displays them.
 
-The script basically downloads a pdf file from a url, extracts and displays some texts from the file.
-It uses a proxy to avoid CORS restrictions.
+(c) Property of The Ultimate Economics Journal.
+To make use of the above, kindly contact them at admin@theultimateeconomicsjournal.com OR info@theultimateeconomicsjournal.com.
+Thank you!
