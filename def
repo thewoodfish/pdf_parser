@@ -1,0 +1,201 @@
+/*
+ * (c) UEJ.
+ * Author: Woodfish
+ * Date: Mar 30 19:45
+ */
+
+function qs(val) {
+    return document.querySelector(val);
+}
+
+if (qs('.uej-search')) {
+
+	function clip(str, n) {
+		// reduce string by a particular number
+		if (str.length > n) {
+			var nstr = "";
+			for (var i = 0; i < n; i++) 
+				if (str[i]) nstr += str[i];
+
+			str = nstr + "...";
+		}
+
+		return str;
+	}
+
+	function shuffle(array) {
+		let counter = array.length;
+
+		// While there are elements in the array
+		while (counter > 0) {
+			// Pick a random index
+			let index = Math.floor(Math.random() * counter);
+
+			// Decrease counter by 1
+			counter--;
+
+			// And swap the last element with it
+			let temp = array[counter];
+			array[counter] = array[index];
+			array[index] = temp;
+		}
+
+		return array;
+	}
+
+	var tpcs = [ 
+		"Economics",
+		"Business",
+		"Social Science",
+		"Humanities",
+		"Agriculture",
+		"International Development",
+		"Economic Development",
+		"Public Policy",
+		"Management",
+		"Education",
+		"Psychology",
+		"Marketing", 
+		"Accounting",
+		"Finance",
+		"Econometrics",
+		"Political Science",
+		"Sociology",
+		"Urban",
+		"Health",
+		"Environment"
+	];
+
+
+	// determines whether to load more for a search or for the normal feed
+	var flag = true;
+
+
+	function rollDice() {
+		flag = true;
+		tpcs = shuffle(tpcs);
+	}
+
+	var str = tpcs[0] + "|" + tpcs[1] + "|" + tpcs[2];
+
+	function loadData(str) {
+			fetch ("https://api.unpaywall.org/v2/search/?query=" + str + "&is_oa=true&email=jasonholt2002@gmail.com", {
+				method: 'get',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			})
+			.then(res => res.json())
+			.then(res => (function () {
+				var pj = JSON.parse(JSON.stringify(res, null, 2));
+
+				for (var i = 0; i < 13; i++) {
+					if (pj["results"][i]) {
+						var r = pj["results"][i].response;
+
+						var authors = '';
+						for (var j = 0; r.z_authors && j < r.z_authors.length; j++) {
+							authors += (r.z_authors[j].given + " " + r.z_authors[j].family) + "**&**"; 
+						};
+						if (r.best_oa_location.url_for_pdf != null) 
+							style(clip(r.title, 140), r.journal_issns, r.best_oa_location.url_for_pdf, authors, r.published_date, r.publisher)
+					}
+				}
+			})());
+	}
+
+	function ce(tag) {
+		return document.createElement(tag);
+	}
+
+	function style(title, issn, url, authors, date, publisher) {
+		// add the information to DOM
+		var d1 = ce('div');
+		d1.className = "uej-main";
+
+		var d2 = ce('div');
+		d2.className = "uej-name";
+		d2.innerHTML = span('Title: ', 'uej-label') + span(title, 'uej-span uej-art-name');
+
+		var d3 = ce('div');
+		d3.className = "uej-issn";
+		issn = issn == null ? "" : issn;
+		d3.innerHTML = span('ISSN: ', 'uej-label') + span(issn), 'uej-span';
+
+		var d4 = ce('div');
+		d4.className = "uej-url";
+		url = url == null ? "Not available" : url;
+		d4.innerHTML = span('URL: ', 'uej-label') + "<a class='uej-url-i' href='" + url + "'>" + url + "</a>";
+
+		// parse authors
+		var a = authors.split('**&**');
+
+		var d0 = ce('div');
+		d0.className = "uej-authors";
+		var com = '';
+
+		for (var i = 0; i < a.length && i < 5; i++) 
+			if (a[i] && a[i] != "NaN" && a[i].search(/undefined/i) == -1) com += span(a[i], 'uej-auth');
+
+		d0.innerHTML = span('Authors: ', 'uej-label') + com;
+
+
+		var d5 = ce('div');
+		d5.className = "uej-date";
+		d5.innerHTML = span('Date of Publication: ', 'uej-label') + span(date), 'uej-span';
+
+		var d6 = ce('div');
+		d6.className = "uej-pub";
+		d6.innerHTML = span('Published by: ', 'uej-label') + span(publisher), 'uej-span';
+
+		// clean up
+		d1.appendChild(d2);
+		d1.appendChild(d3);
+		d1.appendChild(d4);
+		d1.appendChild(d0);
+		d1.appendChild(d5);
+		d1.appendChild(d6);
+
+		qs('.uej-container').appendChild(d1);
+
+		// restore load more text
+		qs(".uej-loadmore").innerText = "Load More";
+	}
+
+	function span(text, clas_s) {
+		return "<span class='" + clas_s + "'>" + text + "</span>";
+	}
+
+	window.addEventListener('load', (e) => {
+		rollDice();
+		loadData(str);
+	}, false);
+
+	document.body.addEventListener('click', (e) => {
+		if (e.target.className == "uej-loadmore") {
+			if (flag) {
+				rollDice();
+				loadData(str);
+			} else 
+				loadData(qs(".uej-search").value);
+
+			e.target.innerText = "loading...";
+		}
+		else if (e.target.className == "uej-search-btn") {
+			// search
+			e.preventDefault();
+
+			if (qs(".uej-search").value) {
+				qs(".uej-container").innerHTML = "";
+				qs(".uej-loadmore").innerText = "loading...";
+
+				// no need to roll dice
+				flag = false;
+				console.log(flag);
+
+				loadData(qs(".uej-search").value);
+			}
+		}
+	}, false);
+
+}
