@@ -1,0 +1,51 @@
+.uej-container {
+    font-size: 90%;
+}
+
+.uej-main {
+    padding: 10px;
+    box-shadow: 0 0 1px #5a5a5a;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    background: #fff;
+}
+
+.uej-label {
+    font-weight: 800;
+    margin-right: 10px;
+}
+
+.uej-art-name {
+	font-weight: 900;
+}
+
+.uej-auth {
+    font-size: 80%;
+    padding: 3px;
+    border: 1px solid grey;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+.uej-loadmore {
+	padding: 10px;
+    border: 1px solid grey;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.load-more-div {
+    text-align: center;
+    margin-top: 30px;
+}
+
+
+.uej-search-div {
+    display: inline-flex;
+}
+
+.uej-search-btn {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}
+
